@@ -9,10 +9,6 @@ jobs:
     steps:
       - checkout 
       # Cache Node modules to speed up subsequent builds
-      - restore_cache:
-          keys:
-            - node-modules-{{ checksum "package-lock.json" }}
-            - node-modules-
       - run:
           name: Install dependencies
           command: |
