@@ -36,8 +36,7 @@ jobs:
           root: .
           paths:
             - .
-      
-
+  
   test-node-app:
     executor: node-executor
     steps:
@@ -47,17 +46,6 @@ jobs:
       - run:
           name: Run tests
           command: npm test  # Replace with your test script
-
-  synk-scan:
-    executor: node-executor
-    steps:
-      - attach_workspace:
-          at: ~/app  # Attach workspace at the same working directory!
-      - snyk/install
-      - snyk/scan
-
-
-
 
 workflows:
   version: 2
