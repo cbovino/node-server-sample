@@ -8,22 +8,12 @@ jobs:
     executor: node/default
     steps:
       - checkout 
-      # Cache Node modules to speed up subsequent builds
-      - restore_cache:
-          keys:
-            - node-modules-{{ checksum "package-lock.json" }}
-            - node-modules-
       - run:
           name: Install dependencies
           command: |
             mkdir -p ~/node_modules
             npm ci  # Install exact versions from package-lock.json
-            mv node_modules ~/node_modules
-      - save_cache:
-          paths:
-            - ~/node_modules
-          key: node-modules-{{ checksum "package-lock.json" }}
-  
+            mv node_modules ~/node_modules  
       - persist_to_workspace:
           root: .
           paths:
