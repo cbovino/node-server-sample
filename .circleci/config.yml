@@ -4,7 +4,7 @@ orbs:
   node: circleci/node@5.0.2
 
 jobs:
-  build-node-app:
+  install-node-mods:
     executor: node/default
     steps:
       - checkout 
@@ -24,12 +24,6 @@ jobs:
             - ~/node_modules
           key: node-modules-{{ checksum "package-lock.json" }}
       
-      - run:
-          name: Build the application
-          command: |
-            mv ~/node_modules ./node_modules
-            npm run build  # Replace with your build script
-
   unit-test-node-app:
       executor: node/default
       steps:
@@ -44,7 +38,7 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - build-node-app
+      - install-node-mods
       - unit-test-node-app:
           requires:
-            - build-node-app
+            - install-node-mods
