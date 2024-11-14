@@ -53,3 +53,9 @@ workflows:
       - test-node-app:
           requires:
             - build-node-app
+      - synk-scan:
+          requires:
+            - build-node-app
+      
+
+      

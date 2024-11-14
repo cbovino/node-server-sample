@@ -1,5 +1,17 @@
 const request = require('supertest');
-const app = require('../index');
+const app = require('../main');
+
+var server;
+
+beforeAll(() => {
+    // Start the server before tests
+    server = app.listen(4000); // Or use the port your app listens on
+});
+
+afterAll(async () => {
+    // Close the server to stop async operations
+    await server.close();
+});
 
 describe('GET /', () => {
     it('should return 200 and valid: true when auth header is present', async () => {
