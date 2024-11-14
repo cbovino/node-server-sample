@@ -1,39 +1,57 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@5.0.2
+executors:
+  node-executor:
+    docker:
+      - image: circleci/node:16  # Replace with your desired Node.js version
+    working_directory: ~/app
 
 jobs:
-  install-node-mods:
-    executor: node/default
+  build-node-app:
+    executor: node-executor
     steps:
-      - checkout 
+      - checkout
+      
+      # Cache Node modules to speed up subsequent builds
+      - restore_cache:
+          keys:
+            - node-modules-{{ checksum "package-lock.json" }}
+            - node-modules-
+      
       - run:
           name: Install dependencies
           command: |
             mkdir -p ~/node_modules
             npm ci  # Install exact versions from package-lock.json
-            mv node_modules ~/node_modules  
+      
+      - save_cache:
+          paths:
+            - node_modules
+          key: node-modules-{{ checksum "package-lock.json" }}
+      
       - persist_to_workspace:
           root: .
           paths:
             - node_modules
+            - package.json
+            - package-lock.json
       
-  unit-test-node-app:
-      executor: node/default
-      steps:
-        - checkout
-        - run:
-            name: run tests
-            command: |
-              npm run tests
 
+  test-node-app:
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/app  # Attach workspace at the same working directory
+      
+      - run:
+          name: Run tests
+          command: npm test  # Replace with your test script
 
 workflows:
   version: 2
   build-and-test:
     jobs:
-      - install-node-mods
-      - unit-test-node-app:
+      - build-node-app
+      - test-node-app:
           requires:
-            - install-node-mods
+            - build-node-app
