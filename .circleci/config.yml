@@ -9,6 +9,10 @@ jobs:
     steps:
       - checkout 
       # Cache Node modules to speed up subsequent builds
+      - restore_cache:
+          keys:
+            - node-modules-{{ checksum "package-lock.json" }}
+            - node-modules-
       - run:
           name: Install dependencies
           command: |
@@ -19,6 +23,11 @@ jobs:
           paths:
             - ~/node_modules
           key: node-modules-{{ checksum "package-lock.json" }}
+  
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
       
   unit-test-node-app:
       executor: node/default
@@ -27,7 +36,7 @@ jobs:
         - run:
             name: run tests
             command: |
-              npm run test
+              npm run tests
 
 
 workflows:
