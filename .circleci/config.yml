@@ -54,12 +54,9 @@ jobs:
       - attach_workspace:
           at: ~/app  # Attach workspace at the same working directory!
       - snyk/install
-      - run:
-          command: snyk version
-          name: Which version of snyk is installed
-      - run:
-          command: snyk iac test
-          name: Run iac test 
+      - snyk/auth
+      - snyk/test
+
 
 
 
