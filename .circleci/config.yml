@@ -1,38 +1,54 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:.,test:jest:
 version: 2.1
-orbs:
-  node: circleci/node@5
-jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    environment:
-      JEST_JUNIT_OUTPUT_DIR: ./test-results/
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm install jest-junit
-      - run:
-          name: Run tests
-          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
-      - store_test_results:
-          path: ./test-results/
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+
+executors:
+  node-executor:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:14  # Replace with your desired Node.js version
+    working_directory: ~/app
+
+jobs:
+  build-node-app:
+    executor: node-executor
     steps:
-      # Replace this with steps to deploy to users
+      - checkout 
+      # Cache Node modules to speed up subsequent builds
+      - restore_cache:
+          keys:
+            - node-modules-{{ checksum "package-lock.json" }}
+            - node-modules-
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Install dependencies
+          command: |
+            mkdir -p ~/node_modules
+            npm ci  # Install exact versions from package-lock.json
+            mv node_modules ~/node_modules
+      - save_cache:
+          paths:
+            - ~/node_modules
+          key: node-modules-{{ checksum "package-lock.json" }}
+      
+      - run:
+          name: Build the application
+          command: |
+            mv ~/node_modules ./node_modules
+            npm run build  # Replace with your build script
+
+  unit-test-node-app:
+        - checkout
+        - run:
+            name: run tests
+            command: |
+              npm run tests
+
+
 workflows:
+  version: 2
   build-and-test:
     jobs:
-      - test-node
-    # - deploy:
-    #     requires:
-    #       - test-node
+      - build-node-app
+      - unit-test-node-app:
+          requires:
+            - build-node-app
+      - synk-scan: 
+          requires:
+            - build-node-app
