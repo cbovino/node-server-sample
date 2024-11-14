@@ -1,14 +1,11 @@
 version: 2.1
 
-executors:
-  node-executor:
-    docker:
-      - image: circleci/node:14  # Replace with your desired Node.js version
-    working_directory: ~/app
+orbs:
+  node: circleci/node@5.0.2
 
 jobs:
   build-node-app:
-    executor: node-executor
+    executor: node/default
     steps:
       - checkout 
       # Cache Node modules to speed up subsequent builds
@@ -34,7 +31,7 @@ jobs:
             npm run build  # Replace with your build script
 
   unit-test-node-app:
-      executor: node-executor
+      executor: node/default
       steps:
         - checkout
         - run:
