@@ -34,6 +34,8 @@ jobs:
             npm run build  # Replace with your build script
 
   unit-test-node-app:
+      executor: node-executor
+      steps:
         - checkout
         - run:
             name: run tests
